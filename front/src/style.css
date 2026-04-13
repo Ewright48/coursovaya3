@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-yellow-100: #FAF1E9;
+  --color-yellow-200: #F5E9DF;
+  --color-yellow-300: #B8B1AB;
+  --color-yellow-400: #97928E;
+
+  --color-green-100: #C6DEC6;
+  --color-green-200: #BDDEBD;
+  --color-green-300: #98BD98;
+  --color-green-400: #798E79;
+
+  --color-pink-100: #DEC5D4;
+  --color-pink-200: #DEBDD0;
+  --color-pink-300: #BC97AD;
+  --color-pink-400: #8D7884;
+}
+
+body {
+  font-family: "EB Garamond", serif;
+  background-color: var(--color-yellow-200);
+  color: #292524;
+}
