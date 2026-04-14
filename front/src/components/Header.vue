@@ -17,7 +17,7 @@ import profile from '../assets/icons/profile.svg';
           <a href="#" class="text-yellow-300 hover:text-yellow-400">О нас</a>
           <a href="#" class="text-yellow-300 hover:text-yellow-400">Оплата</a>
           <a href="#" class="text-yellow-300 hover:text-yellow-400">Доставка</a>
-          <router-link to="catalog">
+          <router-link to="/catalog">
             <a href="#" class="text-yellow-300 hover:text-yellow-400">Каталог</a>
           </router-link>
         </div>

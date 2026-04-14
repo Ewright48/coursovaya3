@@ -7,7 +7,7 @@ import RegistrationForm from './components/RegistrationForm.vue'
 
 <template>
   <Header />
-  <main class="md:px-15 px-10 mb-20">
+  <main class="md:px-15 px-10 mb-20 lg:px-40">
     <router-view />
   </main>
   <Footer />

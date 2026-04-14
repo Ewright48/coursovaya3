@@ -27,7 +27,7 @@ const routes = [
     component: ProfileView
   },
   {
-    path: '/basket', //Доработать?
+    path: '/basket',
     name: 'basket',
     component: BasketView
   }
