@@ -21,6 +21,7 @@ const flower = ref([ //в бэкенде фильтр на популярное,
             </button>
         </div>
         <img :src="banner" alt="Banner">
+        
     </section>
 
     <section class="flex flex-col justify-center mt-20">
