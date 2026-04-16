@@ -1,3 +1,10 @@
+<script setup>
+import { ref, watch, computed } from 'vue'
+import flowerImg from '../assets/images/flower1.jpg'
+import arrowUp from '../assets/icons/arrow-up.svg'
+</script>
+
+
 <template>
   <div class="text-yellow-300 my-4">
     <router-link to="/" class="text-yellow-300 hover:text-yellow-400">Главная</router-link> > 
@@ -11,18 +18,16 @@
       <div class="w-1/2">
         <h2 class="text-4xl mb-4">{{ flower.title }}</h2>
 
-        <div class="">
+        <div>
           <p class="mb-2 text-lg">Выберите количество цветов в букете:</p>
           <div class="flex gap-3 mb-4">
             <button 
-              v-for="amount in presetAmounts" 
+              v-for="amount in availablePresetAmounts" 
               :key="amount" 
               @click="selectAmount(amount)"
               :class="[
                 'w-12 ring-1 ring-pink-400 bg-yellow-100 px-2 rounded hover:ring-2',
-                activeButton === amount 
-                  ? 'ring-2 font-medium text-stone-700' 
-                  : 'text-yellow-400 hover:text-stone-700'
+                activeButton === amount ? 'ring-2 font-medium text-stone-700' : 'text-yellow-400 hover:text-stone-700'
               ]"
             >
               {{ amount }}
@@ -30,26 +35,17 @@
           </div>
 
           <div class="w-32 h-8 flex items-center justify-between gap-3 bg-yellow-100 border-2 border-pink-400 rounded-md">
-            <button 
-              @click="decrement" 
-              :disabled="counterValue <= 1"
+            <button @click="decrement" :disabled="counterValue <= 1"
               class="h-7 rounded-l-md border-r-2 border-pink-400 hover:bg-yellow-200 flex items-center justify-center disabled:opacity-40 disabled:hover:bg-transparent"
             >
               <img :src="arrowUp" class="rotate-90 w-7">
             </button>
-            <input 
-              type="number" 
-              v-model.number="counterValue" 
-              @input="handleManualInput"
-              @change="validateAndCorrectValue"
-              min="1" 
-              :max="flower.inStock"
-              step="1"
+            <input type="number" v-model.number="counterValue" 
+              @input="handleManualInput" @change="validateValue"
+              min="1" :max="flower.inStock" step="1"
               class="text-center text-xl outline-none w-10 bg-transparent"
             />
-            <button 
-              @click="increment" 
-              :disabled="counterValue >= flower.inStock"
+            <button @click="increment" :disabled="counterValue >= flower.inStock"
               class="h-7 rounded-r-md border-l-2 border-pink-400 hover:bg-yellow-200 flex items-center justify-center disabled:opacity-40 disabled:hover:bg-transparent"
             >
               <img :src="arrowUp" class="-rotate-90 w-7">
@@ -57,40 +53,91 @@
           </div>
         </div>
 
-        <hr class="my-8 color-green-400">
+        <hr class="my-8 border-green-400">
 
+        <div class="flex items-center gap-8 text-2xl mb-4">
+          <div class="bg-yellow-100 border-2 border-green-400 rounded-md px-5">
+            {{ flower.price }} ₽
+          </div>
+          <div class="flex items-center gap-2">
+            <p class="line-through">скидка</p>
+            размер скидки
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center text-xl">
+          <button class="bg-yellow-100 border-2 border-pink-400 rounded-md px-4 py-1 hover:bg-yellow-200">
+            В корзину
+          </button>
+          <button class="bg-yellow-100 border-2 border-pink-400 rounded-md px-4 py-1 hover:bg-yellow-200">
+            Купить в 1 клик
+          </button>
+        </div>
+
+        <hr class="my-8 border-green-400">
+
+        <div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <h3 class="text-2xl">Состав</h3>
+                <p>Элемент в составе {{ counterValue }} шт</p>
+                <p v-for="elem in composition">
+                  {{ elem }}
+                </p>
+            </div>
+            <div>
+              <h3 class="text-2xl">Упаковка</h3>
+                <p>Элемент в составе</p>
+                <p v-for="elem in packaging">
+                  {{ elem }}
+                </p>
+            </div>
+            <div>
+              <h3 class="text-2xl">Дополнения</h3>
+                <p>Элемент в составе</p>
+                <p v-for="elem in decoration">
+                  {{ elem }}
+                </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
   </section>
 </template>
 
-<script setup>
-import { ref, watch } from 'vue'
-import flowerImg from '../assets/images/flower1.jpg'
-import arrowUp from '../assets/icons/arrow-up.svg'
-
+<script>
 const flower = ref([
-  { id: 1, title: 'Розы красные', price: 2500, inStock: 100, image: flowerImg },
+  { id: 1, title: 'Розы красные', price: 2500, inStock: 50, image: flowerImg },
 ]).value[0]
 
-const presetAmounts = [9, 11, 15, 21, 25, 35, 51]
 const counterValue = ref(15)
 const activeButton = ref(15)
+const allPresetAmounts = [3, 5, 7, 9, 11, 15, 21, 25, 35, 51]
 
-const validateAndCorrectValue = () => {
+const availablePresetAmounts = computed(() => {
+  return allPresetAmounts.filter(amount => amount <= flower.inStock)
+})
+
+const validateValue = () => {
   let value = counterValue.value
 
+  if (isNaN(value) || value === null || value === undefined || value === '') {
+    value = 1
+  }
   if (value < 1) value = 1
   if (value > flower.inStock) value = flower.inStock
   value = Math.floor(value)
 
-  if (counterValue.value !== value) counterValue.value = value
+  if (counterValue.value !== value) {
+    counterValue.value = value
+  }
   updateActiveButton()
 }
 
 const updateActiveButton = () => {
-  if (presetAmounts.includes(counterValue.value)) {
+  if (availablePresetAmounts.value.includes(counterValue.value)) {
     activeButton.value = counterValue.value
   } else {
     activeButton.value = null
@@ -108,7 +155,7 @@ const selectAmount = (amount) => {
 }
 
 const handleManualInput = () => {
-  validateAndCorrectValue()
+  validateValue()
 }
 
 const increment = () => {
@@ -117,6 +164,7 @@ const increment = () => {
     updateActiveButton()
   }
 }
+
 const decrement = () => {
   if (counterValue.value > 1) {
     counterValue.value--
@@ -124,13 +172,16 @@ const decrement = () => {
   }
 }
 
-watch(counterValue, () => {
+watch(counterValue, () => updateActiveButton())
+
+watch(() => flower.inStock, () => {
+  validateValue()
   updateActiveButton()
 })
 </script>
 
 <style scoped>
-/* это убрать стандартные стрелки input */
+/* для удаления стандартных стрелок input number*/
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -140,5 +191,9 @@ input[type=number]::-webkit-outer-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 </style>

@@ -7,11 +7,6 @@ const props = defineProps({
   name: String,
   price: Number
 })
-
-const addToBasket = (event) => { //////////////////
-  event.stopPropagation();
-  console.log(`Товар ${props.id} добавлен в корзину`);
-};
 </script>
 
 <template>
@@ -29,3 +24,10 @@ const addToBasket = (event) => { //////////////////
     </button> 
   </article>
 </template>
+
+<script>
+const addToBasket = (event) => { //////////////////
+  event.stopPropagation();
+  console.log(`Товар ${props.id} добавлен в корзину`);
+};
+</script>
