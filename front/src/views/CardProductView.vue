@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue'
 import flowerImg from '../assets/images/flower1.jpg'
 import arrowUp from '../assets/icons/arrow-up.svg'
+import Counter from '../components/Counter.vue'
 </script>
 
 
@@ -34,23 +35,11 @@ import arrowUp from '../assets/icons/arrow-up.svg'
             </button>
           </div>
 
-          <div class="w-32 h-8 flex items-center justify-between gap-3 bg-yellow-100 border-2 border-pink-400 rounded-md">
-            <button @click="decrement" :disabled="counterValue <= 1"
-              class="h-7 rounded-l-md border-r-2 border-pink-400 hover:bg-yellow-200 flex items-center justify-center disabled:opacity-40 disabled:hover:bg-transparent"
-            >
-              <img :src="arrowUp" class="rotate-90 w-7">
-            </button>
-            <input type="number" v-model.number="counterValue" 
-              @input="handleManualInput" @change="validateValue"
-              min="1" :max="flower.inStock" step="1"
-              class="text-center text-xl outline-none w-10 bg-transparent"
-            />
-            <button @click="increment" :disabled="counterValue >= flower.inStock"
-              class="h-7 rounded-r-md border-l-2 border-pink-400 hover:bg-yellow-200 flex items-center justify-center disabled:opacity-40 disabled:hover:bg-transparent"
-            >
-              <img :src="arrowUp" class="-rotate-90 w-7">
-            </button>
-          </div>
+          <Counter 
+            v-model="counterValue"
+            :max-value="flower.inStock"
+            :min-value="1"
+          />
         </div>
 
         <hr class="my-8 border-green-400">
@@ -59,10 +48,10 @@ import arrowUp from '../assets/icons/arrow-up.svg'
           <div class="bg-yellow-100 border-2 border-green-400 rounded-md px-5">
             {{ flower.price }} ₽
           </div>
-          <div class="flex items-center gap-2">
+          <!-- <div class="flex items-center gap-2">
             <p class="line-through">скидка</p>
             размер скидки
-          </div>
+          </div> -->
         </div>
 
         <div class="flex justify-between items-center text-xl">
@@ -108,6 +97,7 @@ import arrowUp from '../assets/icons/arrow-up.svg'
 </template>
 
 <script>
+
 const flower = ref([
   { id: 1, title: 'Розы красные', price: 2500, inStock: 50, image: flowerImg },
 ]).value[0]
@@ -119,22 +109,6 @@ const allPresetAmounts = [3, 5, 7, 9, 11, 15, 21, 25, 35, 51]
 const availablePresetAmounts = computed(() => {
   return allPresetAmounts.filter(amount => amount <= flower.inStock)
 })
-
-const validateValue = () => {
-  let value = counterValue.value
-
-  if (isNaN(value) || value === null || value === undefined || value === '') {
-    value = 1
-  }
-  if (value < 1) value = 1
-  if (value > flower.inStock) value = flower.inStock
-  value = Math.floor(value)
-
-  if (counterValue.value !== value) {
-    counterValue.value = value
-  }
-  updateActiveButton()
-}
 
 const updateActiveButton = () => {
   if (availablePresetAmounts.value.includes(counterValue.value)) {
@@ -154,46 +128,12 @@ const selectAmount = (amount) => {
   }
 }
 
-const handleManualInput = () => {
-  validateValue()
-}
-
-const increment = () => {
-  if (counterValue.value < flower.inStock) {
-    counterValue.value++
-    updateActiveButton()
-  }
-}
-
-const decrement = () => {
-  if (counterValue.value > 1) {
-    counterValue.value--
-    updateActiveButton()
-  }
-}
-
 watch(counterValue, () => updateActiveButton())
 
 watch(() => flower.inStock, () => {
-  validateValue()
+  if (counterValue.value > flower.inStock) {
+    counterValue.value = flower.inStock
+  }
   updateActiveButton()
 })
 </script>
-
-<style scoped>
-/* для удаления стандартных стрелок input number*/
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type=number] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-button:disabled {
-  cursor: not-allowed;
-}
-</style>

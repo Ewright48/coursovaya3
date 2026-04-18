@@ -38,12 +38,15 @@ const colors = {
     <router-link to="/" class="text-yellow-300 hover:text-yellow-400">Главная</router-link> > <span class="text-yellow-400">Каталог</span>
   </div>
 
-  <div class="hidden    w-48 bg-yellow-100 border border-yellow-400 rounded-lg p-4">
+  <div class="   w-48 bg-yellow-100 border border-yellow-400 rounded-lg p-4">
     <!-- мб скрыть примененный вариант, починить сетку каталога -->
-    <button class="hover:ring hover:ring-yellow-400 p-2 rounded-md w-full text-start">По популярности</button>
-    <button class="hover:ring hover:ring-yellow-400 p-2 rounded-md w-full text-start">Новинки</button>
-    <button class="hover:ring hover:ring-yellow-400 p-2 rounded-md w-full text-start">Цена по возрастанию</button>
-    <button class="hover:ring hover:ring-yellow-400 p-2 rounded-md w-full text-start">Цена по убыванию</button>
+    <button class=" hover:bg-yellow-200 p-2 rounded-sm w-full text-start">По популярности</button>
+    <hr class="my-1 border-green-400">
+    <button class=" hover:bg-yellow-200 p-2 rounded-sm w-full text-start">Новинки</button>
+    <hr class="my-1 border-green-400">
+    <button class=" hover:bg-yellow-200 p-2 rounded-sm w-full text-start">Цена по возрастанию</button>
+    <hr class="my-1 border-green-400">
+    <button class=" hover:bg-yellow-200 p-2 rounded-sm w-full text-start">Цена по убыванию</button>
   </div>
 
   <div class="flex items-start">
