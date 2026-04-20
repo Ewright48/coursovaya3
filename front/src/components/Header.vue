@@ -1,7 +1,7 @@
 <script setup>
 import logoFlower from '../assets/icons/logo-flower.svg';
 import basket from '../assets/icons/basket.svg';
-import heart from '../assets/icons/heart.svg'; // Избранного пока нет
+import heart from '../assets/icons/heart.svg'; // Избранное
 import profile from '../assets/icons/profile.svg';
 </script>
 
@@ -23,7 +23,7 @@ import profile from '../assets/icons/profile.svg';
         </div>
 
         <div class="flex gap-4">
-          <!-- <router-link to="/"> </router-link> <img :src="heart" class="size-9" alt="Heart" /> У меня должно быть Избранное?? -->
+          <!-- Нет избранного :( -->
           <router-link to="/basket">
             <img :src="basket" class="size-9" alt="Basket" />
           </router-link> 

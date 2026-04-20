@@ -89,6 +89,7 @@ watch(() => flower.inStock, () => {
 
   <section>
     <div class="flex justify-between gap-10">
+      <!-- Несколько картинок -->
       <img :src="flower.image" alt="Product Image" class="w-120 h-120 object-cover rounded-lg" />
       <div class="w-1/2">
         <h2 class="text-4xl mb-4">{{ flower.title }}</h2>
