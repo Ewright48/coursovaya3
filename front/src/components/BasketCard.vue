@@ -1,4 +1,3 @@
-<!-- BasketCard.vue -->
 <script setup>
 import { ref, computed, watch } from 'vue'
 import Cross from '../assets/icons/cross.svg'

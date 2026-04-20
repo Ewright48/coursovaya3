@@ -89,8 +89,8 @@ const cartTotal = computed(() => {
     </template>
     
     <div v-if="cartItems.length > 0" class="border-t border-green-400 p-4 flex justify-between items-center">
-      <span class="text-lg font-semibold">Итого:</span>
-      <span class="text-2xl font-bold">{{ cartTotal }} ₽</span>
+      <span class="text-lg font-medium">Итого:</span>
+      <span class="text-2xl font-medium">{{ cartTotal }} ₽</span>
     </div>
   </div>
 </template>

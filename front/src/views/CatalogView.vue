@@ -19,12 +19,30 @@ const flower = ref([
   { id: 2, title: 'Тюльпаны', price: 1800, image: flowerImg },
   { id: 3, title: 'Пионы', price: 3200, image: flowerImg },
 ])
+
+const isSortMenuOpen = ref(false)
+const currentSort = ref('По популярности')
+
+const toggleSortMenu = () => {
+  isSortMenuOpen.value = !isSortMenuOpen.value
+}
+
+const selectSort = (sortType) => {
+  currentSort.value = sortType
+  isSortMenuOpen.value = false
+  console.log('Сортировка:', sortType)
+}
+
+const closeMenu = () => {
+  isSortMenuOpen.value = false
+}
+
 const composition = {
   Розы: 3,
   Гортензии: 2,
   Хризантемы: 2,
   Микс: 2,
-};  //все переделать
+};
 
 const colors = {
   Красный: 3,
@@ -38,18 +56,7 @@ const colors = {
     <router-link to="/" class="text-yellow-300 hover:text-yellow-400">Главная</router-link> > <span class="text-yellow-400">Каталог</span>
   </div>
 
-  <div class="   w-48 bg-yellow-100 border border-yellow-400 rounded-lg p-4">
-    <!-- мб скрыть примененный вариант, починить сетку каталога -->
-    <button class=" hover:bg-yellow-200 p-2 rounded-sm w-full text-start">По популярности</button>
-    <hr class="my-1 border-green-400">
-    <button class=" hover:bg-yellow-200 p-2 rounded-sm w-full text-start">Новинки</button>
-    <hr class="my-1 border-green-400">
-    <button class=" hover:bg-yellow-200 p-2 rounded-sm w-full text-start">Цена по возрастанию</button>
-    <hr class="my-1 border-green-400">
-    <button class=" hover:bg-yellow-200 p-2 rounded-sm w-full text-start">Цена по убыванию</button>
-  </div>
-
-  <div class="flex items-start">
+  <div class="flex items-start relative">
     <aside class="bg-yellow-100 rounded-lg border border-green-400 p-6 font-display">
       <h2 class="text-4xl">Фильтры</h2>
 
@@ -58,11 +65,11 @@ const colors = {
         <div class="flex items-center gap-2 mb-2">
           <span>от</span>
           <input type="text" pattern="[0-9]*" min="0" value="0" @input="validateNumber"
-            class="w-18 px-2 ring ring-pink-400 rounded text-center bg-yellow-200 focus:outline-none focus:ring-2"
+            class="w-18 px-2 ring ring-pink-400 rounded text-center bg-yellow-200 focus:outline-none focus:ring-2 transition-all"
           />
           <span>до</span>
           <input type="text" pattern="[0-9]*" min="0" value="0" @input="validateNumber"
-            class="w-18 px-2 ring ring-pink-400 rounded text-center bg-yellow-200 focus:outline-none focus:ring-2"
+            class="w-18 px-2 ring ring-pink-400 rounded text-center bg-yellow-200 focus:outline-none focus:ring-2 transition-all"
           />
         </div>
       </div>
@@ -72,11 +79,11 @@ const colors = {
         <div class="flex items-center gap-2 mb-2">
           <span>от</span>
           <input type="text" pattern="[0-9]*" min="0" value="0" @input="validateNumber"
-            class="w-18 px-2 ring ring-pink-400 rounded text-center bg-yellow-200 focus:outline-none focus:ring-2"
+            class="w-18 px-2 ring ring-pink-400 rounded text-center bg-yellow-200 focus:outline-none focus:ring-2 transition-all"
           />
           <span>до</span>
           <input type="text" pattern="[0-9]*" min="0" value="0" @input="validateNumber"
-            class="w-18 px-2 ring ring-pink-400 rounded text-center bg-yellow-200 focus:outline-none focus:ring-2"
+            class="w-18 px-2 ring ring-pink-400 rounded text-center bg-yellow-200 focus:outline-none focus:ring-2 transition-all"
           />
         </div>
       </div>
@@ -113,12 +120,41 @@ const colors = {
     </aside>
 
     <section class="flex flex-col w-full ml-6">
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex justify-between items-center mb-4 relative">
         <h2 class="text-4xl">Каталог</h2>
-        <button class="flex gap-2 items-center">
+        
+        <button @click="toggleSortMenu" class="flex gap-2 items-center relative z-10 hover:underline hover:underline-yellow-400">
           <img :src="arrowSort" class="w-6" alt="Sort" />
-          <p class="text-lg">По популярности</p>
+          <p class="text-lg">{{ currentSort }}</p>
         </button>
+
+        <div v-if="isSortMenuOpen" 
+          class="absolute right-0 top-full mt-2 w-48 bg-yellow-100 border border-yellow-400 rounded-lg p-4 z-20 shadow-lg"
+        >
+          <button @click="selectSort('По популярности')" 
+            class="hover:bg-yellow-200 p-2 rounded-sm w-full text-start"
+          >
+            По популярности
+          </button>
+          <hr class="my-1 border-green-400">
+          <button @click="selectSort('Новинки')" 
+            class="hover:bg-yellow-200 p-2 rounded-sm w-full text-start"
+          >
+            Новинки
+          </button>
+          <hr class="my-1 border-green-400">
+          <button @click="selectSort('Цена по возрастанию')" 
+            class="hover:bg-yellow-200 p-2 rounded-sm w-full text-start"
+          >
+            Цена по возрастанию
+          </button>
+          <hr class="my-1 border-green-400">
+          <button @click="selectSort('Цена по убыванию')" 
+            class="hover:bg-yellow-200 p-2 rounded-sm w-full text-start"
+          >
+            Цена по убыванию
+          </button>
+        </div>
       </div>
 
       <div class="grid grid-cols-3 gap-4">

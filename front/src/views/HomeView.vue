@@ -16,7 +16,7 @@ const flower = ref([ //в бэкенде фильтр на популярное,
         <div class="w-1/2 text-2xl flex flex-col justify-center">
             <h1 class="text-7xl mb-20">Свежие цветы — быстро и с любовью</h1>
             <p class="w-115">Хотите удивить близких? У нас вы найдёте букеты на любой вкус и повод! Быстрая доставка, качественный сервис и всегда свежие цветы — ваш идеальный выбор.</p>
-            <button class="mt-13 w-30 border-2 rounded-md border-pink-400 hover:bg-yellow-100 px-2">
+            <button class="mt-13 w-30 border-2 rounded-md border-pink-400 hover:bg-yellow-100 px-2 transition-all">
                 <router-link to="/catalog">В каталог</router-link>
             </button>
         </div>
@@ -26,7 +26,7 @@ const flower = ref([ //в бэкенде фильтр на популярное,
 
     <section class="flex flex-col justify-center mt-20">
         <h2 class="text-4xl text-center">Популярное</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-20 mt-10">
             <CardProductMini v-for="item in flower" :key="item.id" :id="item.id"
             :image="item.image" :name="item.title" :price="item.price"/>
         </div>
@@ -34,7 +34,7 @@ const flower = ref([ //в бэкенде фильтр на популярное,
     </section>
     <section class="flex flex-col justify-center mt-20">
         <h2 class="text-4xl text-center">Новинки</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-20 mt-10">
             <CardProductMini 
                 v-for="item in flower" :key="item.id" :id="item.id" :image="item.image"
                 :name="item.title" :price="item.price"/>
