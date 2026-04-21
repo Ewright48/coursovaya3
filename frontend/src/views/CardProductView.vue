@@ -121,6 +121,7 @@ watch(() => flower.inStock, () => {
           <div class="bg-yellow-100 border-2 border-green-400 rounded-md px-5">
             <span v-if="hasDiscount" class="line-through text-stone-700 text-lg mr-2">
               {{ flower.pricePerFlower * counterValue }} ₽
+              <!-- цена должна также формироваться от упаковки и украшений, переместить расчеты в бэк -->
             </span>
             <span class="font-medium">{{ totalPrice }} ₽</span>
             <span v-if="hasDiscount" class="text-green-400 text-sm ml-2">-5%</span>
