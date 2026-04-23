@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const productController = require('../controllers/productController');
 
-//заглушка
-router.get('/', (req, res) => {
-    res.json({ message: 'Products route working' });
-});
+// GET /api/products - список товаров
+router.get('/', productController.getProducts);
 
-router.get('/:id', (req, res) => {
-    res.json({ message: `Get product with id ${req.params.id}` });
-});
+// GET /api/products/:id - для карточки товаров
+router.get('/:id', productController.getProductById);
 
 module.exports = router;
