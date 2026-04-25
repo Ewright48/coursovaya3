@@ -1,11 +1,5 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-
-// загрузка переменных окружения (.env)
-dotenv.config();
-
 const app = require('./src/app');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 5000;
 

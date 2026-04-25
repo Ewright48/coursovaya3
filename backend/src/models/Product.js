@@ -11,7 +11,7 @@ const getBasicInfo = async (productId) => {
     return result.rows[0] || null;
 };
 
-// Вспомогательная функция для расчёта базовой цены (цветы + упаковка + декор)
+// Вспомогательная для расчёта базовой цены (цветы + упаковка + декор)
 const calculateBasePrice = async (productId, flowersCount = null) => {
     const product = await getBasicInfo(productId);
     if (!product) return 0;
@@ -76,7 +76,9 @@ const getProductsWithFields = async (orderBy, limit, filters = {}) => {
             image_url, 
             total_flowers, 
             is_mix, 
-            discount
+            discount,
+            was_ordered,
+            created_at
         FROM Products
         WHERE 1=1
     `;
@@ -221,26 +223,48 @@ const Product = {
         const product = await getBasicInfo(productId);
         if (!product) return null;
         
-        // Получение связанных данных
-        const getRelated = async (table, joinTable, joinCondition, fields) => {
-            const query = `
-                SELECT ${fields}
-                FROM ${joinTable} jt
-                JOIN ${table} t ON jt.${joinCondition} = t.${joinCondition}
-                WHERE jt.product_id = $1
-            `;
-            const result = await pool.query(query, [productId]);
-            return result.rows;
-        };
+        // Получение цветов
+        const flowersQuery = `
+            SELECT 
+                f.flower_id, 
+                f.flower_name, 
+                f.price_per_flower, 
+                f.in_stock, 
+                pf.quantity_in_mix
+            FROM Product_Flowers pf
+            JOIN Flowers f ON pf.flower_id = f.flower_id
+            WHERE pf.product_id = $1
+        `;
+        const flowersResult = await pool.query(flowersQuery, [productId]);
+        product.flowers = flowersResult.rows;
         
-        product.flowers = await getRelated('Flowers', 'Product_Flowers', 'flower_id', 
-            'f.flower_id, f.flower_name, f.price_per_flower, f.in_stock, pf.quantity_in_mix');
+        // Получение упаковки
+        const packagingQuery = `
+            SELECT 
+                p.packaging_id, 
+                p.packaging_name, 
+                p.price
+            FROM Product_Packaging pp
+            JOIN Packaging p ON pp.packaging_id = p.packaging_id
+            WHERE pp.product_id = $1
+        `;
+        const packagingResult = await pool.query(packagingQuery, [productId]);
+        product.packaging = packagingResult.rows;
         
-        product.packaging = await getRelated('Packaging', 'Product_Packaging', 'packaging_id',
-            'p.packaging_id, p.packaging_name, p.price');
-        
-        product.decoration = await getRelated('Decoration', 'Product_Decoration', 'decoration_id',
-            'd.decoration_id, d.decoration_name, d.price, d.in_stock, pd.quantity');
+        // Получение декора
+        const decorationQuery = `
+            SELECT 
+                d.decoration_id, 
+                d.decoration_name, 
+                d.price, 
+                d.in_stock, 
+                pd.quantity
+            FROM Product_Decoration pd
+            JOIN Decoration d ON pd.decoration_id = d.decoration_id
+            WHERE pd.product_id = $1
+        `;
+        const decorationResult = await pool.query(decorationQuery, [productId]);
+        product.decoration = decorationResult.rows;
         
         return product;
     },
