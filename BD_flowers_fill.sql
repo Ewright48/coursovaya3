@@ -21,7 +21,8 @@ CREATE TABLE Users (
     password_hash VARCHAR(255) NOT NULL,
     address TEXT NOT NULL DEFAULT '',
     status VARCHAR(50) DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 2. Products (Товары/Букеты)
@@ -33,7 +34,8 @@ CREATE TABLE Products (
     was_ordered INT DEFAULT 0,
     total_flowers INT NOT NULL DEFAULT 0,
     image_url VARCHAR(500) DEFAULT '',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 3. Flowers (Справочник цветов)
@@ -42,7 +44,8 @@ CREATE TABLE Flowers (
     flower_name VARCHAR(100) NOT NULL UNIQUE,
     price_per_flower DECIMAL(10,2) NOT NULL,
     in_stock INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 4. Packaging (Справочник упаковки)
@@ -50,7 +53,8 @@ CREATE TABLE Packaging (
     packaging_id SERIAL PRIMARY KEY,
     packaging_name VARCHAR(100) NOT NULL UNIQUE,
     price DECIMAL(10,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 5. Decoration (Справочник декора)
@@ -59,7 +63,8 @@ CREATE TABLE Decoration (
     decoration_name VARCHAR(100) NOT NULL UNIQUE,
     price DECIMAL(10,2) NOT NULL,
     in_stock INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 6. Product_Flowers (Связь продукт-цветы)
@@ -68,6 +73,7 @@ CREATE TABLE Product_Flowers (
     product_id INT NOT NULL REFERENCES Products(product_id) ON DELETE CASCADE,
     flower_id INT NOT NULL REFERENCES Flowers(flower_id) ON DELETE CASCADE,
     quantity_in_mix INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(product_id, flower_id)
 );
 
@@ -76,6 +82,7 @@ CREATE TABLE Product_Packaging (
     id SERIAL PRIMARY KEY,
     product_id INT NOT NULL REFERENCES Products(product_id) ON DELETE CASCADE,
     packaging_id INT NOT NULL REFERENCES Packaging(packaging_id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(product_id, packaging_id)
 );
 
@@ -85,6 +92,7 @@ CREATE TABLE Product_Decoration (
     product_id INT NOT NULL REFERENCES Products(product_id) ON DELETE CASCADE,
     decoration_id INT NOT NULL REFERENCES Decoration(decoration_id) ON DELETE CASCADE,
     quantity INT NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(product_id, decoration_id)
 );
 
@@ -100,6 +108,7 @@ CREATE TABLE Product_Colors (
     id SERIAL PRIMARY KEY,
     product_id INT NOT NULL REFERENCES Products(product_id) ON DELETE CASCADE,
     color_id INT NOT NULL REFERENCES Colors(color_id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(product_id, color_id)
 );
 
@@ -108,7 +117,8 @@ CREATE TABLE Carts (
     cart_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
     session_id VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 12. Cart_Items (Товары в корзине)
@@ -119,10 +129,11 @@ CREATE TABLE Cart_Items (
     bouquet_count INT NOT NULL DEFAULT 1,
     flowers_per_bouquet INT NOT NULL,
     price_at_time DECIMAL(10,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 13. Orders (Заказы)
+-- 13. Orders (Заказы) - ДОБАВЛЕНА КОЛОНКА updated_at
 CREATE TABLE Orders (
     order_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
@@ -135,7 +146,8 @@ CREATE TABLE Orders (
     delivery_address TEXT,
     delivery_time_start TIME,
     delivery_time_end TIME,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 14. Order_Items (Товары в заказе)
@@ -229,84 +241,30 @@ INSERT INTO Products (name, is_mix, discount, was_ordered, total_flowers, image_
 ('Премиум', true, 20, 14, 35, '/images/products/premium-mix.jpg', '2024-03-18 10:00:00');
 
 -- =====================================================
--- СОСТАВ МОНО-БУКЕТОВ (Product_Flowers) - ДОБАВЛЕНО
+-- СОСТАВ МОНО-БУКЕТОВ (Product_Flowers)
 -- =====================================================
 
--- Розы красные (id 1)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (1, 1, 15);
-
--- Розы белые (id 2)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (2, 2, 15);
-
--- Розы розовые (id 3)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (3, 3, 15);
-
--- Тюльпаны красные (id 4)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (4, 4, 21);
-
--- Тюльпаны желтые (id 5)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (5, 5, 21);
-
--- Пионы розовые (id 6)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (6, 6, 15);
-
--- Пионы белые (id 7)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (7, 7, 15);
-
--- Гортензии голубые (id 8)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (8, 8, 15);
-
--- Хризантемы белые (id 9)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (9, 10, 21);
-
--- Лилии оранжевые (id 10)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (10, 12, 15);
-
--- Орхидеи фиолетовые (id 11)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (11, 14, 15);
-
--- Гвоздики красные (id 12)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (12, 15, 15);
-
--- Розы бордовые (id 13) - используем красную розу
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (13, 1, 15);
-
--- Лилии белые (id 14)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES (14, 13, 15);
+INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES 
+(1, 1, 15), (2, 2, 15), (3, 3, 15), (4, 4, 21), (5, 5, 21),
+(6, 6, 15), (7, 7, 15), (8, 8, 15), (9, 10, 21), (10, 12, 15),
+(11, 14, 15), (12, 15, 15), (13, 1, 15), (14, 13, 15);
 
 -- =====================================================
 -- СОСТАВ МИКСОВ (Product_Flowers)
 -- =====================================================
 
--- Весенний сад (id 15)
 INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES 
-(15, 4, 5), (15, 6, 5), (15, 9, 5);
-
--- Нежный рассвет (id 16)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES 
-(16, 2, 10), (16, 3, 6), (16, 5, 5);
-
--- Яркое начало (id 17)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES 
-(17, 1, 10), (17, 4, 8), (17, 12, 7);
-
--- Романтическое чудо (id 18)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES 
-(18, 2, 5), (18, 3, 5), (18, 8, 5);
-
--- Осенний сюрприз (id 19)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES 
-(19, 4, 7), (19, 11, 7), (19, 12, 7);
-
--- Премиум (id 20)
-INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES 
+(15, 4, 5), (15, 6, 5), (15, 9, 5),
+(16, 2, 10), (16, 3, 6), (16, 5, 5),
+(17, 1, 10), (17, 4, 8), (17, 12, 7),
+(18, 2, 5), (18, 3, 5), (18, 8, 5),
+(19, 4, 7), (19, 11, 7), (19, 12, 7),
 (20, 1, 10), (20, 6, 8), (20, 9, 7), (20, 14, 5), (20, 15, 5);
 
 -- =====================================================
 -- УПАКОВКА, ДЕКОР, ЦВЕТА
 -- =====================================================
 
--- Упаковка для всех продуктов
 INSERT INTO Product_Packaging (product_id, packaging_id)
 SELECT p.product_id, pk.packaging_id
 FROM Products p
@@ -314,27 +272,21 @@ CROSS JOIN (SELECT packaging_id FROM Packaging LIMIT 3) pk
 WHERE p.product_id BETWEEN 1 AND 20
 ON CONFLICT DO NOTHING;
 
--- Декор для всех продуктов
 INSERT INTO Product_Decoration (product_id, decoration_id, quantity)
 SELECT p.product_id, d.decoration_id, 1
 FROM Products p
 CROSS JOIN (SELECT decoration_id FROM Decoration LIMIT 2) d
 WHERE p.product_id BETWEEN 1 AND 20;
 
--- Цвета для моно-букетов (Product_Colors)
 INSERT INTO Product_Colors (product_id, color_id) VALUES 
 (1, 1), (2, 2), (3, 3), (4, 1), (5, 4), (6, 3), (7, 2), 
-(8, 6), (9, 2), (10, 5), (11, 7), (12, 1), (13, 10), (14, 2);
-
--- Цвета для миксов
-INSERT INTO Product_Colors (product_id, color_id) VALUES 
+(8, 6), (9, 2), (10, 5), (11, 7), (12, 1), (13, 10), (14, 2),
 (15, 8), (16, 9), (17, 8), (18, 9), (19, 5), (20, 8);
 
 -- =====================================================
 -- ЗАКАЗЫ
 -- =====================================================
 
--- Заказы
 INSERT INTO Orders (user_id, order_number, status, subtotal, delivery_type, delivery_price, total_price, delivery_address, delivery_time_start, delivery_time_end, created_at) VALUES 
 (1, 'ORD-20240101-001', 'completed', 2500, 'courier', 300, 2800, 'г. Великий Новгород, ул. Германа, д. 15, кв. 47', '10:00', '12:00', '2024-01-01 09:00:00'),
 (1, 'ORD-20240115-002', 'completed', 1800, 'pickup', 0, 1800, NULL, NULL, NULL, '2024-01-15 14:00:00'),
@@ -358,7 +310,7 @@ INSERT INTO Order_Items (order_id, product_id, product_name, price_per_bouquet, 
 -- Корзина
 INSERT INTO Carts (user_id, session_id) VALUES (1, NULL);
 
--- Товары в корзине (пример)
+-- Товары в корзине
 INSERT INTO Cart_Items (cart_id, product_id, bouquet_count, flowers_per_bouquet, price_at_time) VALUES 
 (1, 1, 1, 15, 2500),
 (1, 2, 2, 21, 2880),
