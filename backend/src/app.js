@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path')
 require('dotenv').config();
 
 const homeRoutes = require('./routes/homeRoutes');
@@ -20,6 +21,9 @@ app.use('/api/filters', filterRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+
+// Загрузка картинок товаров
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 
 app.get('/api/ok', (req, res) => {
     res.json({ status: 'OK', message: 'Server is running' });

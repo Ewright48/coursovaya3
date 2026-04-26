@@ -34,16 +34,14 @@ const Order = {
             `SELECT * FROM Orders WHERE order_id = $1 AND user_id = $2`,
             [orderId, userId]
         );
-        if (orderResult.rows.length === 0) return null;
+        if (!orderResult.rows.length) return null;
         
-        const order = orderResult.rows[0];
         const itemsResult = await pool.query(
             `SELECT order_item_id, product_id, product_name, price_per_bouquet, bouquet_count, flowers_per_bouquet, is_mix
              FROM Order_Items WHERE order_id = $1`,
             [orderId]
         );
-        order.items = itemsResult.rows;
-        return order;
+        return { ...orderResult.rows[0], items: itemsResult.rows };
     },
     
     async updateStatus(orderId, userId, status) {
@@ -61,12 +59,8 @@ const Order = {
     },
     
     async isCancellable(orderId, userId) {
-        const result = await pool.query(
-            `SELECT status FROM Orders WHERE order_id = $1 AND user_id = $2`,
-            [orderId, userId]
-        );
-        if (result.rows.length === 0) return false;
-        return ['pending', 'confirmed'].includes(result.rows[0].status);
+        const result = await pool.query(`SELECT status FROM Orders WHERE order_id = $1 AND user_id = $2`, [orderId, userId]);
+        return result.rows.length && ['pending', 'confirmed'].includes(result.rows[0].status);
     }
 };
 

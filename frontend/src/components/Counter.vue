@@ -1,28 +1,22 @@
 <template>
-  <div class="w-32 h-8 flex items-center justify-between gap-3 bg-yellow-100 border-2 border-pink-400 rounded-md">
+  <div class="overflow-hidden w-32 h-8 flex items-center justify-between gap-3 bg-yellow-100 border-2 border-pink-400 rounded-md">
     <button 
-      @click="decrement" 
-      :disabled="currentValue <= 1"
-      class="h-7 rounded-l-md border-r-2 border-pink-400 hover:bg-yellow-200 flex items-center justify-center disabled:opacity-40 disabled:hover:bg-transparent"
+      @click="decrement" :disabled="currentValue <= 1"
+      class="relative z-10 h-7.5 rounded-l-md border-r-2 border-pink-400 hover:bg-yellow-200 flex items-center justify-center disabled:opacity-40 disabled:hover:bg-transparent"
     >
       <img :src="arrowUp" class="rotate-90 w-7">
     </button>
     
-    <input 
-      type="number" 
-      v-model.number="currentValue" 
-      @input="handleManualInput" 
-      @change="validateValue"
-      :min="1" 
-      :max="maxValue" 
-      step="1"
+    <input type="number" v-model.number="currentValue" 
+      @input="handleManualInput" @change="validateValue"
+      :min="1" :max="maxValue" step="1"
       class="text-center text-xl outline-none w-10 bg-transparent"
     />
     
     <button 
       @click="increment" 
       :disabled="currentValue >= maxValue"
-      class="h-7 rounded-r-md border-l-2 border-pink-400 hover:bg-yellow-200 flex items-center justify-center disabled:opacity-40 disabled:hover:bg-transparent"
+      class="relative z-10 h-7.5 rounded-r-md border-l-2 border-pink-400 hover:bg-yellow-200 flex items-center justify-center disabled:opacity-40 disabled:hover:bg-transparent"
     >
       <img :src="arrowUp" class="-rotate-90 w-7">
     </button>

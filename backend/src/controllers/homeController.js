@@ -1,23 +1,21 @@
 const Product = require('../models/Product');
 
-// GET /api/home/popular
 const getPopularProducts = async (req, res) => {
     try {
         const productsData = await Product.getPopular(6);
         
-        const products = await Promise.all(
-            productsData.map(async (product) => {
-                const price = await Product.calculatePrice(product.product_id, 9);
-                return {
-                    id: product.product_id,
-                    name: product.name,
-                    price: price,
-                    image: product.image_url,
-                    flowersCount: product.total_flowers,
-                    isMix: product.is_mix
-                };
-            })
-        );
+        const products = [];
+        for (const product of productsData) {
+            const price = await Product.calculatePrice(product.product_id, product.total_flowers);
+            products.push({
+                id: product.product_id,
+                name: product.name,
+                price: price,
+                image: product.image_url,
+                flowersCount: product.total_flowers,
+                isMix: product.is_mix
+            });
+        }
         
         res.json(products);
     } catch (error) {
@@ -26,25 +24,22 @@ const getPopularProducts = async (req, res) => {
     }
 };
 
-// GET /api/home/new
 const getNewProducts = async (req, res) => {
     try {
         const productsData = await Product.getNew(4);
         
-        // Цена по умолчанию за 9 цветов
-        const products = await Promise.all(
-            productsData.map(async (product) => {
-                const price = await Product.calculatePrice(product.product_id, 9);
-                return {
-                    id: product.product_id,
-                    name: product.name,
-                    price: price,
-                    image: product.image_url,
-                    flowersCount: product.total_flowers,
-                    isMix: product.is_mix
-                };
-            })
-        );
+        const products = [];
+        for (const product of productsData) {
+            const price = await Product.calculatePrice(product.product_id, product.total_flowers);
+            products.push({
+                id: product.product_id,
+                name: product.name,
+                price: price,
+                image: product.image_url,
+                flowersCount: product.total_flowers,
+                isMix: product.is_mix
+            });
+        }
         
         res.json(products);
     } catch (error) {
@@ -53,7 +48,4 @@ const getNewProducts = async (req, res) => {
     }
 };
 
-module.exports = {
-    getPopularProducts,
-    getNewProducts
-};
+module.exports = { getPopularProducts, getNewProducts };

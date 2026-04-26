@@ -1,8 +1,10 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { validators } from '../main.js'
+import { useAuth } from '../composables/useAuth'
 
-const emit = defineEmits(['register', 'switch-to-login'])
+const emit = defineEmits(['register-success', 'switch-to-login'])
+const { register, loading } = useAuth()
 
 const formData = reactive({
   email: '',
@@ -59,14 +61,20 @@ const validateForm = () => {
   return isEmailValid && isPhoneValid && isPasswordValid && isConfirmValid
 }
 
-const handleRegister = () => {
+const handleRegister = async () => {
   submitted.value = true
   errorMessages.value = ''
   
-  if (validateForm()) {
-    emit('register', { ...formData })
-  } else {
+  if (!validateForm()) {
     errorMessages.value = 'Пожалуйста, заполните все поля корректно'
+    return
+  }
+  
+  const result = await register(formData)
+  if (result.success) {
+    emit('register-success')
+  } else {
+    errorMessages.value = result.error || 'Ошибка при регистрации'
   }
 }
 
@@ -86,7 +94,7 @@ const clearFieldError = (field) => {
     <h2 class="text-3xl mb-4">Регистрация</h2>
     
     <form @submit.prevent="handleRegister" class="flex flex-col items-center justify-center placeholder:text-yellow-300">
-      <input type="email" placeholder="Почта"v-model="formData.email" @input="clearFieldError('email')"
+      <input type="email" placeholder="Почта" v-model="formData.email" @input="clearFieldError('email')"
         :class="[
           'w-full mb-2 px-4 py-1 ring rounded-lg focus:outline-none focus:ring-2',
           submitted && errors.email ? 'ring-red-400 focus:ring-red-400' : 'ring-green-400 focus:ring-green-400'
@@ -94,7 +102,7 @@ const clearFieldError = (field) => {
       />
       <p v-if="submitted && errors.email" class="text-red-400 text-sm mb-2 w-full text-left">Введите корректный email</p>
 
-      <input type="tel" placeholder="Телефон"v-model="formData.phone"@input="clearFieldError('phone')"
+      <input type="tel" placeholder="Телефон" v-model="formData.phone" @input="clearFieldError('phone')"
         :class="[
           'w-full mb-2 px-4 py-1 ring rounded-lg focus:outline-none focus:ring-2',
           submitted && errors.phone ? 'ring-red-400 focus:ring-red-400' : 'ring-green-400 focus:ring-green-400'
@@ -118,10 +126,11 @@ const clearFieldError = (field) => {
       />
       <p v-if="submitted && errors.confirmPassword" class="text-red-400 text-sm mb-5 w-full text-left">Пароли не совпадают</p>
 
-      <p v-if="submitted && errorMessages" class="text-red-400 text-sm mb-2 w-full text-left">{{ errorMessages }}</p>
+      <p v-if="errorMessages" class="text-red-400 text-sm mb-2 w-full text-left">{{ errorMessages }}</p>
 
-      <input type="submit" value="Зарегистрироваться"
-        class="w-full py-1 border-2 border-pink-400 rounded-lg hover:bg-yellow-200 cursor-pointer"
+      <input type="submit" :value="loading ? 'Регистрация...' : 'Зарегистрироваться'"
+        class="w-full py-1 border-2 border-pink-400 rounded-lg hover:bg-yellow-200 cursor-pointer disabled:opacity-50"
+        :disabled="loading"
       />
 
       <button type="button" @click="switchToLogin" 

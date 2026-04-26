@@ -1,63 +1,28 @@
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import OrderCard from '../components/OrderCard.vue'
-import flowerImg from '../assets/images/flower1.jpg'
 import { validators } from '../main.js'
+import api from '../api'
+import { useAuth } from '../composables/useAuth'
 
-const emit = defineEmits(['update-profile', 'delete-account'])
+const router = useRouter()
+const { isAuthenticated, user, updateProfile, deleteAccount, logout, loadUser } = useAuth()
 
-const orders = ref([
-  {
-    id: 1,
-    items: [{ id: 101, image: flowerImg, title: 'Букет из красных роз', flowerCount: 15, quantity: 1, price: 1000 }],
-    priceTotal: 1000,
-    status: 'completed'
-  },
-  {
-    id: 2,
-    items: [{ id: 102, image: flowerImg, title: 'Букет из белых роз', flowerCount: 21, quantity: 2, price: 1200 }],
-    priceTotal: 2400,
-    status: 'active'
-  },
-  {
-    id: 3,
-    items: [{ id: 103, image: flowerImg, title: 'Букет из пионов', flowerCount: 11, quantity: 1, price: 1500 }],
-    priceTotal: 1500,
-    status: 'completed'
-  },
-  {
-    id: 4,
-    items: [{ id: 104, image: flowerImg, title: 'Букет из тюльпанов', flowerCount: 25, quantity: 1, price: 1800 }],
-    priceTotal: 1800,
-    status: 'active'
-  },
-  {
-    id: 5,
-    items: [
-      { id: 105, image: flowerImg, title: 'Букет из роз', flowerCount: 15, quantity: 1, price: 2000 },
-      { id: 106, image: flowerImg, title: 'Букет из лилий', flowerCount: 11, quantity: 2, price: 1500 },
-      { id: 107, image: flowerImg, title: 'Букет из хризантем', flowerCount: 21, quantity: 1, price: 1800 }
-    ],
-    priceTotal: 6800,
-    status: 'active'
-  }
-])
-
-const activeOrders = computed(() => orders.value.filter(order => order.status === 'active'))
-const completedOrders = computed(() => orders.value.filter(order => order.status === 'completed'))
-
+const orders = ref([])
+const loading = ref(true)
 const activeTab = ref('active')
 const submitted = ref(false)
 const errorMessages = ref('')
 const successMessage = ref('')
 
-const ORIGINAL_DATA = {
-  phone: '+7 (999) 00-00',
-  email: 'flower@main.ru',
-  address: 'г. Москва, ул. Цветочная, д. 10'
-}
-
-const formData = reactive({ ...ORIGINAL_DATA, password: '', confirmPassword: '' })
+const formData = reactive({
+  email: '',
+  phone: '',
+  address: '',
+  password: '',
+  confirmPassword: ''
+})
 
 const errors = reactive({
   phone: false,
@@ -67,13 +32,57 @@ const errors = reactive({
   confirmPassword: false
 })
 
+// Статусы для активных заказов
+const activeStatuses = ['pending', 'active', 'processing', 'confirmed', 'preparing', 'delivery']
+const completedStatuses = ['completed', 'cancelled', 'rejected']
+
+const activeOrders = computed(() => {
+  return orders.value.filter(order => activeStatuses.includes(order.status))
+})
+
+const completedOrders = computed(() => {
+  return orders.value.filter(order => completedStatuses.includes(order.status))
+})
+
+const loadOrders = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    loading.value = false
+    return
+  }
+  
+  loading.value = true
+  try {
+    const data = await api.getOrders(token)
+    orders.value = data || []
+  } catch (error) {
+    console.error('Ошибка загрузки заказов:', error)
+    orders.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+const initForm = () => {
+  if (user.value) {
+    formData.email = user.value.email || ''
+    formData.phone = user.value.phone || ''
+    formData.address = user.value.address || ''
+  }
+}
+
 const isFieldFilled = (value) => value && value.trim() !== ''
 
 const hasChanges = () => {
-  return formData.phone !== ORIGINAL_DATA.phone ||
-         formData.email !== ORIGINAL_DATA.email ||
-         formData.address !== ORIGINAL_DATA.address ||
+  return formData.phone !== (user.value?.phone || '') ||
+         formData.email !== (user.value?.email || '') ||
+         formData.address !== (user.value?.address || '') ||
          isFieldFilled(formData.password)
+}
+
+const handleExit = () => {
+  logout()
+  router.push('/')
 }
 
 const isRequiredFieldsFilled = () => {
@@ -128,9 +137,7 @@ const validateForm = () => {
 }
 
 const resetForm = () => {
-  ORIGINAL_DATA.phone = formData.phone
-  ORIGINAL_DATA.email = formData.email
-  ORIGINAL_DATA.address = formData.address
+  initForm()
   formData.password = ''
   formData.confirmPassword = ''
   errors.password = false
@@ -141,7 +148,7 @@ const setActiveTab = (tab) => {
   activeTab.value = tab
 }
 
-const handleUpdate = () => {
+const handleUpdate = async () => {
   submitted.value = true
   errorMessages.value = ''
   successMessage.value = ''
@@ -159,22 +166,36 @@ const handleUpdate = () => {
     return
   }
 
-  const updateData = { phone: formData.phone, email: formData.email, address: formData.address }
-  if (isFieldFilled(formData.password)) updateData.password = formData.password
+  const updateData = {
+    email: formData.email,
+    phone: formData.phone,
+    address: formData.address
+  }
+  if (isFieldFilled(formData.password)) {
+    updateData.password = formData.password
+  }
 
-  emit('update-profile', updateData)
-  successMessage.value = 'Данные успешно обновлены'
-  
-  resetForm()
-  setTimeout(() => {
-    successMessage.value = ''
-    submitted.value = false
-  }, 3000)
+  const result = await updateProfile(updateData)
+  if (result.success) {
+    successMessage.value = 'Данные успешно обновлены'
+    resetForm()
+    setTimeout(() => {
+      successMessage.value = ''
+      submitted.value = false
+    }, 3000)
+  } else {
+    errorMessages.value = result.error || 'Ошибка при обновлении данных'
+  }
 }
 
-const handleDeleteAccount = () => {
+const handleDeleteAccount = async () => {
   if (confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо.')) {
-    emit('delete-account')
+    const result = await deleteAccount()
+    if (result.success) {
+      router.push('/')
+    } else {
+      alert(result.error || 'Ошибка при удалении аккаунта')
+    }
   }
 }
 
@@ -185,10 +206,58 @@ const inputFields = [
   { name: 'password', label: 'Новый пароль', type: 'password', placeholder: '••••••••', errorMsg: 'Пароль должен содержать минимум 6 символов' },
   { name: 'confirmPassword', label: 'Подтвердите пароль', type: 'password', placeholder: '••••••••', errorMsg: 'Пароли не совпадают' }
 ]
+
+onMounted(async () => {
+  // Сначала загружаем пользователя, если есть токен
+  await loadUser()
+  
+  // После загрузки пользователя проверяем авторизацию
+  if (!isAuthenticated.value) {
+    router.push('/')
+    return
+  }
+  
+  initForm()
+  await loadOrders()
+})
+
+const repeatOrder = async (orderId) => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    alert('Войдите в аккаунт')
+    return
+  }
+  try {
+    await api.repeatOrder(token, orderId)
+    alert('Товары добавлены в корзину')
+  } catch (error) {
+    console.error('Ошибка повторения заказа:', error)
+    alert('Ошибка при добавлении в корзину')
+  }
+}
+
+const cancelOrder = async (orderId) => {
+  if (!confirm('Отменить заказ?')) return
+  
+  const token = localStorage.getItem('token')
+  if (!token) return
+  
+  try {
+    await api.cancelOrder(token, orderId)
+    alert('Заказ отменён')
+    await loadOrders()
+  } catch (error) {
+    console.error('Ошибка отмены заказа:', error)
+    alert('Ошибка при отмене заказа')
+  }
+}
 </script>
 
 <template>
-  <div class="flex gap-8 p-6 min-h-screen">
+  <div v-if="loading && orders.length === 0" class="flex gap-8 p-6 min-h-screen items-center justify-center">
+    <div class="text-stone-500">Загрузка...</div>
+  </div>
+  <div v-else class="flex gap-8 p-6 min-h-screen">
     <section class="w-1/3 bg-yellow-100 rounded-lg border border-yellow-400 shadow-sm">
       <div class="p-6">
         <h2 class="text-2xl text-stone-800 mb-6">Мой профиль</h2>
@@ -215,12 +284,20 @@ const inputFields = [
 
         <p v-if="submitted && errorMessages" class="text-red-400 text-sm mt-4 text-center">{{ errorMessages }}</p>
         <p v-if="successMessage" class="text-green-400 text-sm mt-4 text-center">{{ successMessage }}</p>
+        <div>
+          <button @click="handleUpdate" 
+            class="my-8 w-full px-4 py-2 ring-2 ring-pink-400 rounded-lg hover:bg-yellow-200 hover:ring-3 text-lg transition-all"
+          >
+            Изменить данные
+          </button>
 
-        <button @click="handleUpdate" 
-          class="my-8 w-full px-4 py-2 ring-2 ring-pink-400 rounded-lg hover:bg-yellow-200 hover:ring-3 text-lg transition-all"
-        >
-          Изменить данные
-        </button>
+          <button @click="handleExit" 
+            class="mb-8 w-full px-4 py-2 ring-2 ring-pink-400 rounded-lg hover:bg-yellow-200 hover:ring-3 text-lg transition-all"
+          >
+            Выйти из аккаунта
+          </button>          
+        </div>
+
         <button @click="handleDeleteAccount" 
           class="w-full px-4 py-2 ring-2 ring-red-400 text-red-400 rounded-lg hover:bg-yellow-200 hover:ring-3 hover:ring-red-400 text-lg transition-all"
         >
@@ -234,7 +311,9 @@ const inputFields = [
 
       <div class="flex gap-8 mb-6 border-b border-yellow-400">
         <button @click="setActiveTab('active')"
-          :class="['pb-1 transition-all', activeTab === 'active' 
+          :class="[
+            'pb-1 transition-all',
+            activeTab === 'active' 
               ? 'border-b-2 border-pink-400 text-pink-400' 
               : 'text-yellow-300 hover:text-yellow-400'
           ]"
@@ -242,7 +321,9 @@ const inputFields = [
           Активные ({{ activeOrders.length }})
         </button>
         <button @click="setActiveTab('history')"
-          :class="['pb-1 transition-all', activeTab === 'history' 
+          :class="[
+            'pb-1 transition-all',
+            activeTab === 'history' 
               ? 'border-b-2 border-pink-400 text-pink-400' 
               : 'text-yellow-300 hover:text-yellow-400'
           ]"
@@ -256,14 +337,27 @@ const inputFields = [
           <div v-if="activeOrders.length === 0" class="text-center py-8 text-stone-700">
             Нет активных заказов
           </div>
-          <OrderCard v-for="order in activeOrders" :key="order.id" :order="order" :show-status="true" />
+          <OrderCard 
+            v-for="order in activeOrders" 
+            :key="order.order_id" 
+            :order="order" 
+            :show-status="true"
+            @repeat-order="repeatOrder"
+            @cancel-order="cancelOrder"
+          />
         </div>
 
         <div v-else>
           <div v-if="completedOrders.length === 0" class="text-center py-8 text-stone-700">
             Нет выполненных заказов
           </div>
-          <OrderCard v-for="order in completedOrders" :key="order.id" :order="order" :show-status="false" />
+          <OrderCard 
+            v-for="order in completedOrders" 
+            :key="order.order_id" 
+            :order="order" 
+            :show-status="false"
+            @repeat-order="repeatOrder"
+          />
         </div>
       </div>
     </section>

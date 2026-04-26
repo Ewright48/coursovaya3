@@ -33,6 +33,7 @@ CREATE TABLE Products (
     discount DECIMAL(5,2) DEFAULT 0,
     was_ordered INT DEFAULT 0,
     total_flowers INT NOT NULL DEFAULT 0,
+    default_price DECIMAL(10,2) NOT NULL DEFAULT 0,
     image_url VARCHAR(500) DEFAULT '',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -133,7 +134,7 @@ CREATE TABLE Cart_Items (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 13. Orders (Заказы) - ДОБАВЛЕНА КОЛОНКА updated_at
+-- 13. Orders (Заказы)
 CREATE TABLE Orders (
     order_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
@@ -198,47 +199,52 @@ INSERT INTO Packaging (packaging_name, price) VALUES
 ('Корзина плетеная', 200),
 ('Шляпная коробка', 250);
 
--- Декор с остатками на складе
+-- Декор (без веток)
 INSERT INTO Decoration (decoration_name, price, in_stock) VALUES 
 ('Гипсофила', 40, 300),
-('Ветки декоративные', 40, 200),
 ('Бусины жемчужные', 60, 500),
 ('Шишки сосновые', 50, 150),
 ('Эвкалипт', 70, 250),
 ('Парвифолия', 100, 100),
 ('Мох декоративный', 45, 400),
-('Кружево белое', 55, 300);
+('Кружево белое', 55, 300),
+('Лента атласная', 45, 400),
+('Ягоды декоративные', 65, 200);
 
 -- Цвета букетов
 INSERT INTO Colors (color_name) VALUES 
 ('Красный'), ('Белый'), ('Розовый'), ('Желтый'), ('Оранжевый'), 
 ('Голубой'), ('Фиолетовый'), ('Микс'), ('Пастельный'), ('Бордовый');
 
+-- =====================================================
+-- ТОВАРЫ (с default_price)
+-- =====================================================
+
 -- Моно-букеты (14 шт)
-INSERT INTO Products (name, is_mix, discount, was_ordered, total_flowers, image_url, created_at) VALUES 
-('Розы красные', false, 0, 45, 15, '/images/products/roses-red.jpg', '2024-01-15 10:00:00'),
-('Розы белые', false, 10, 32, 15, '/images/products/roses-white.jpg', '2024-02-20 11:00:00'),
-('Розы розовые', false, 5, 28, 15, '/images/products/roses-pink.jpg', '2024-01-25 09:00:00'),
-('Тюльпаны красные', false, 0, 56, 21, '/images/products/tulips-red.jpg', '2024-03-01 14:00:00'),
-('Тюльпаны желтые', false, 15, 23, 21, '/images/products/tulips-yellow.jpg', '2024-03-10 12:00:00'),
-('Пионы розовые', false, 0, 41, 15, '/images/products/peonies-pink.jpg', '2024-02-01 10:00:00'),
-('Пионы белые', false, 20, 19, 15, '/images/products/peonies-white.jpg', '2024-03-05 15:00:00'),
-('Гортензии голубые', false, 0, 15, 15, '/images/products/hydrangeas-blue.jpg', '2024-01-10 08:00:00'),
-('Хризантемы белые', false, 10, 27, 21, '/images/products/chrysanthemums-white.jpg', '2024-02-15 13:00:00'),
-('Лилии оранжевые', false, 0, 22, 15, '/images/products/lilies-orange.jpg', '2024-03-12 16:00:00'),
-('Орхидеи фиолетовые', false, 25, 12, 15, '/images/products/orchids-purple.jpg', '2024-01-05 11:00:00'),
-('Гвоздики красные', false, 0, 34, 15, '/images/products/carnations-red.jpg', '2024-02-28 09:00:00'),
-('Розы бордовые', false, 10, 18, 15, '/images/products/roses-burgundy.jpg', '2024-03-15 14:00:00'),
-('Лилии белые', false, 0, 24, 15, '/images/products/lilies-white.jpg', '2024-02-10 10:00:00');
+INSERT INTO Products (name, is_mix, discount, was_ordered, total_flowers, default_price, image_url, created_at) VALUES 
+('Розы красные', false, 0, 45, 15, 2250, '/uploads/products/roses-red.jpg', '2024-01-15 10:00:00'),
+('Розы белые', false, 0, 32, 15, 2160, '/uploads/products/roses-white.jpg', '2024-02-20 11:00:00'),
+('Розы розовые', false, 0, 28, 15, 2090, '/uploads/products/roses-pink.jpg', '2024-01-25 09:00:00'),
+('Тюльпаны красные', false, 0, 56, 21, 1680, '/uploads/products/tulips-red.jpg', '2024-03-01 14:00:00'),
+('Тюльпаны желтые', false, 0, 23, 21, 1910, '/uploads/products/tulips-yellow.jpg', '2024-03-10 12:00:00'),
+('Пионы розовые', false, 0, 41, 15, 3000, '/uploads/products/peonies-pink.jpg', '2024-02-01 10:00:00'),
+('Пионы белые', false, 0, 19, 15, 3360, '/uploads/products/peonies-white.jpg', '2024-03-05 15:00:00'),
+('Гортензии голубые', false, 0, 15, 15, 2700, '/uploads/products/hydrangeas-blue.jpg', '2024-01-10 08:00:00'),
+('Хризантемы белые', false, 0, 27, 21, 1470, '/uploads/products/chrysanthemums-white.jpg', '2024-02-15 13:00:00'),
+('Лилии оранжевые', false, 0, 22, 15, 1800, '/uploads/products/lilies-orange.jpg', '2024-03-12 16:00:00'),
+('Орхидеи фиолетовые', false, 0, 12, 15, 4500, '/uploads/products/orchids-purple.jpg', '2024-01-05 11:00:00'),
+('Гвоздики красные', false, 0, 34, 15, 900, '/uploads/products/carnations-red.jpg', '2024-02-28 09:00:00'),
+('Розы бордовые', false, 0, 18, 15, 2250, '/uploads/products/roses-burgundy.jpg', '2024-03-15 14:00:00'),
+('Лилии белые', false, 0, 24, 15, 1875, '/uploads/products/lilies-white.jpg', '2024-02-10 10:00:00');
 
 -- Миксы (6 шт)
-INSERT INTO Products (name, is_mix, discount, was_ordered, total_flowers, image_url, created_at) VALUES 
-('Весенний сад', true, 0, 38, 15, '/images/products/spring-mix.jpg', '2024-01-20 12:00:00'),
-('Нежный рассвет', true, 15, 29, 21, '/images/products/gentle-mix.jpg', '2024-02-25 09:00:00'),
-('Яркое начало', true, 0, 21, 25, '/images/products/bright-mix.jpg', '2024-03-08 11:00:00'),
-('Романтическое чудо', true, 10, 33, 15, '/images/products/romantic-mix.jpg', '2024-01-18 14:00:00'),
-('Осенний сюрприз', true, 0, 17, 21, '/images/products/autumn-mix.jpg', '2024-02-05 16:00:00'),
-('Премиум', true, 20, 14, 35, '/images/products/premium-mix.jpg', '2024-03-18 10:00:00');
+INSERT INTO Products (name, is_mix, discount, was_ordered, total_flowers, default_price, image_url, created_at) VALUES 
+('Весенний сад', true, 0, 38, 15, 2535, '/uploads/products/spring-mix.jpg', '2024-01-20 12:00:00'),
+('Нежный рассвет', true, 15, 29, 21, 3790, '/uploads/products/gentle-mix.jpg', '2024-02-25 09:00:00'),
+('Яркое начало', true, 0, 21, 25, 3950, '/uploads/products/bright-mix.jpg', '2024-03-08 11:00:00'),
+('Романтическое чудо', true, 10, 33, 15, 3150, '/uploads/products/romantic-mix.jpg', '2024-01-18 14:00:00'),
+('Осенний сюрприз', true, 0, 17, 21, 2835, '/uploads/products/autumn-mix.jpg', '2024-02-05 16:00:00'),
+('Премиум', true, 20, 14, 35, 7420, '/uploads/products/premium-mix.jpg', '2024-03-18 10:00:00');
 
 -- =====================================================
 -- СОСТАВ МОНО-БУКЕТОВ (Product_Flowers)
@@ -262,21 +268,68 @@ INSERT INTO Product_Flowers (product_id, flower_id, quantity_in_mix) VALUES
 (20, 1, 10), (20, 6, 8), (20, 9, 7), (20, 14, 5), (20, 15, 5);
 
 -- =====================================================
--- УПАКОВКА, ДЕКОР, ЦВЕТА
+-- УПАКОВКА
 -- =====================================================
 
-INSERT INTO Product_Packaging (product_id, packaging_id)
-SELECT p.product_id, pk.packaging_id
-FROM Products p
-CROSS JOIN (SELECT packaging_id FROM Packaging LIMIT 3) pk
-WHERE p.product_id BETWEEN 1 AND 20
-ON CONFLICT DO NOTHING;
+-- Моно-букеты
+INSERT INTO Product_Packaging (product_id, packaging_id) VALUES 
+(1, 1), (1, 5),
+(2, 3), (2, 6),
+(3, 2), (3, 4),
+(4, 1), (4, 4),
+(5, 5), (5, 6),
+(6, 3), (6, 1),
+(7, 6), (7, 4),
+(8, 2), (8, 1),
+(9, 5), (9, 3),
+(10, 4), (10, 6),
+(11, 1), (11, 5), (11, 3),
+(12, 2), (12, 4),
+(13, 6), (13, 1),
+(14, 3), (14, 5);
 
-INSERT INTO Product_Decoration (product_id, decoration_id, quantity)
-SELECT p.product_id, d.decoration_id, 1
-FROM Products p
-CROSS JOIN (SELECT decoration_id FROM Decoration LIMIT 2) d
-WHERE p.product_id BETWEEN 1 AND 20;
+-- Миксы
+INSERT INTO Product_Packaging (product_id, packaging_id) VALUES 
+(15, 1), (15, 4),
+(16, 3), (16, 6),
+(17, 2), (17, 5),
+(18, 1), (18, 3),
+(19, 4), (19, 6),
+(20, 2), (20, 5), (20, 1);
+
+-- =====================================================
+-- ДЕКОР
+-- =====================================================
+
+-- Моно-букеты
+INSERT INTO Product_Decoration (product_id, decoration_id, quantity) VALUES 
+(1, 1, 1), (1, 2, 2),
+(2, 4, 1), (2, 7, 1),
+(3, 6, 1), (3, 8, 2),
+(4, 1, 1), (4, 3, 2),
+(5, 9, 2), (5, 4, 1),
+(6, 7, 1), (6, 2, 2),
+(7, 1, 1), (7, 8, 2),
+(8, 4, 1), (8, 6, 1),
+(9, 9, 2), (9, 3, 1),
+(10, 7, 1), (10, 8, 1),
+(11, 2, 2), (11, 4, 1),
+(12, 1, 1), (12, 9, 1),
+(13, 6, 1), (13, 3, 2),
+(14, 8, 2), (14, 7, 1);
+
+-- Миксы
+INSERT INTO Product_Decoration (product_id, decoration_id, quantity) VALUES 
+(15, 1, 1), (15, 4, 1),
+(16, 2, 2), (16, 7, 1),
+(17, 6, 1), (17, 8, 2),
+(18, 9, 1), (18, 3, 1),
+(19, 1, 1), (19, 2, 1),
+(20, 4, 1), (20, 7, 1), (20, 8, 1);
+
+-- =====================================================
+-- ЦВЕТА БУКЕТОВ
+-- =====================================================
 
 INSERT INTO Product_Colors (product_id, color_id) VALUES 
 (1, 1), (2, 2), (3, 3), (4, 1), (5, 4), (6, 3), (7, 2), 

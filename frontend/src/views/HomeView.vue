@@ -1,14 +1,27 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import banner from '../assets/images/banner.png'
-import flowerImg from '../assets/images/flower1.jpg'
 import CardProductMini from '../components/CardProductMini.vue';
+import api from '../api';
 
-const flower = ref([ //в бэкенде фильтр на популярное, новое, со скидкой(?)
-    { id: 1, title: 'Розы красные', price: 2500, image: flowerImg },
-    { id: 2, title: 'Тюльпаны', price: 1800, image: flowerImg },
-    { id: 3, title: 'Пионы', price: 3200, image: flowerImg },
-])
+const popularProducts = ref([])
+const newProducts = ref([])
+const loading = ref(true)
+
+onMounted(async () => {
+    try {
+        const [popular, newItems] = await Promise.all([
+            api.getPopularProducts(),
+            api.getNewProducts()
+        ])
+        popularProducts.value = popular
+        newProducts.value = newItems
+    } catch (error) {
+        console.error('Ошибка загрузки:', error)
+    } finally {
+        loading.value = false
+    }
+})
 </script>
 
 <template>
@@ -21,24 +34,35 @@ const flower = ref([ //в бэкенде фильтр на популярное,
             </button>
         </div>
         <img :src="banner" alt="Banner">
-        
     </section>
 
     <section class="flex flex-col justify-center mt-20">
         <h2 class="text-4xl text-center">Популярное</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-20 mt-10">
-            <CardProductMini v-for="item in flower" :key="item.id" :id="item.id"
-            :image="item.image" :name="item.title" :price="item.price"/>
-        </div>
-        
-    </section>
-    <section class="flex flex-col justify-center mt-20">
-        <h2 class="text-4xl text-center">Новинки</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-20 mt-10">
+        <div v-if="loading" class="text-center py-10">Загрузка...</div>
+        <div v-else class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-20 mt-10">
             <CardProductMini 
-                v-for="item in flower" :key="item.id" :id="item.id" :image="item.image"
-                :name="item.title" :price="item.price"/>
+                v-for="item in popularProducts" 
+                :key="item.id" 
+                :id="item.id"
+                :image="item.image" 
+                :name="item.name" 
+                :price="item.price"
+            />
         </div>
     </section>
 
+    <section class="flex flex-col justify-center mt-20">
+        <h2 class="text-4xl text-center">Новинки</h2>
+        <div v-if="loading" class="text-center py-10">Загрузка...</div>
+        <div v-else class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-20 mt-10">
+            <CardProductMini 
+                v-for="item in newProducts" 
+                :key="item.id" 
+                :id="item.id"
+                :image="item.image" 
+                :name="item.name" 
+                :price="item.price"
+            />
+        </div>
+    </section>
 </template>

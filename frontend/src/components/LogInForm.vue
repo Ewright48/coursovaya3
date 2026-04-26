@@ -1,8 +1,10 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { validators } from '../main.js'
+import { useAuth } from '../composables/useAuth'
 
-const emit = defineEmits(['login', 'switch-to-register'])
+const emit = defineEmits(['login-success', 'switch-to-register'])
+const { login, loading } = useAuth()
 
 const formData = reactive({
   login: '',
@@ -42,12 +44,17 @@ const validateForm = () => {
   return isLoginValid && isPasswordValid
 }
 
-const handleLogin = () => {
+const handleLogin = async () => {
   submitted.value = true
   errorMessages.value = ''
   
-  if (validateForm()) {
-    emit('login', { ...formData })
+  if (!validateForm()) return
+  
+  const result = await login(formData)
+  if (result.success) {
+    emit('login-success')
+  } else {
+    errorMessages.value = result.error || 'Неверный email/телефон или пароль'
   }
 }
 
@@ -67,13 +74,13 @@ const clearFieldError = (field) => {
     <h2 class="text-3xl mb-4">Вход</h2>
     
     <form @submit.prevent="handleLogin" class="flex flex-col items-center justify-center placeholder:text-yellow-300">
-      <input type="text" placeholder="Почта/Телефон" v-model="formData.login" @input="clearFieldError('login')"
+      <input type="text" placeholder="Почта" v-model="formData.login" @input="clearFieldError('login')"
         :class="[
           'w-full mb-2 px-4 py-1 ring rounded-lg focus:outline-none focus:ring-2',
           submitted && errors.login ? 'ring-red-400 focus:ring-red-400' : 'ring-green-400 focus:ring-green-400'
         ]"
       />
-      <p v-if="submitted && errors.login" class="text-red-400 text-sm mb-2 w-full text-left">Введите корректный email или телефон</p>
+      <p v-if="submitted && errors.login" class="text-red-400 text-sm mb-2 w-full text-left">Введите корректный email</p>
 
       <input type="password" placeholder="Пароль" v-model="formData.password" @input="clearFieldError('password')"
         :class="[
@@ -83,8 +90,11 @@ const clearFieldError = (field) => {
       />
       <p v-if="submitted && errors.password" class="text-red-400 text-sm mb-2 w-full text-left">Пароль должен содержать минимум 6 символов</p>
 
-      <input type="submit" value="Войти"
-        class="w-full py-1 border-2 border-pink-400 rounded-lg hover:bg-yellow-200 cursor-pointer"
+      <p v-if="errorMessages" class="text-red-400 text-sm mb-2 w-full text-left">{{ errorMessages }}</p>
+
+      <input type="submit" :value="loading ? 'Вход...' : 'Войти'"
+        class="w-full py-1 border-2 border-pink-400 rounded-lg hover:bg-yellow-200 cursor-pointer disabled:opacity-50"
+        :disabled="loading"
       />
 
       <button type="button" @click="switchToRegister" 

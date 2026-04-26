@@ -7,15 +7,23 @@ const props = defineProps({
   id: Number,
   image: String,
   name: String,
-  price: Number,
-  flowersCount: Number,
+  price: Number,           // цена за 1 букет
+  flowersCount: Number,    // количество цветов в букете (только для инфо)
   inStock: Number,
-  discount: Number,
+  discount: {
+    type: Number,
+    default: 0
+  },
   isMix: Boolean,
+  modelValue: {
+    type: Number,
+    default: 1
+  }
 })
 
-const emit = defineEmits(['update:bouquetCount', 'remove'])
-const bouquetCount = ref(1)
+const emit = defineEmits(['update:bouquetCount', 'remove', 'update:modelValue'])
+
+const bouquetCount = ref(props.modelValue)
 
 const maxAvailableBouquets = computed(() => {
   if (props.isMix) {
@@ -24,11 +32,34 @@ const maxAvailableBouquets = computed(() => {
   return Math.floor(props.inStock / props.flowersCount)
 })
 
+const getBouquetWord = (count) => {
+  const lastDigit = count % 10
+  const lastTwoDigits = count % 100
+  
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'букетов'
+  if (lastDigit === 1) return 'букет'
+  if (lastDigit >= 2 && lastDigit <= 4) return 'букета'
+  return 'букетов'
+}
+
+const availableText = computed(() => {
+  const count = maxAvailableBouquets.value
+  return `(В наличии: ${count} ${getBouquetWord(count)})`
+})
+
 const totalPrice = computed(() => {
-  return props.price * bouquetCount.value
+  const priceWithDiscount = props.price * (1 - props.discount / 100)
+  return priceWithDiscount * bouquetCount.value
+})
+
+watch(() => props.modelValue, (newVal) => {
+  if (newVal !== bouquetCount.value) {
+    bouquetCount.value = newVal
+  }
 })
 
 watch(bouquetCount, (newValue) => {
+  emit('update:modelValue', newValue)
   emit('update:bouquetCount', props.id, newValue)
 })
 
@@ -60,9 +91,7 @@ const removeItem = () => {
       <div class="flex items-end justify-between mt-auto">
         <div class="flex flex-col gap-1">
           <div class="flex flex-col gap-2 mb-2">
-            <p class="text-sm text-stone-500">
-              (В наличии: {{ maxAvailableBouquets }} букетов)
-            </p>
+            <p class="text-sm text-stone-500">{{ availableText }}</p>
           </div>
           <Counter
             v-model="bouquetCount"
@@ -71,8 +100,8 @@ const removeItem = () => {
           />
         </div>
         <div class="text-right">
-          <p class="text-xl font-medium">{{ totalPrice }} ₽</p>
-          <p class="text-sm text-stone-500">{{ price }} ₽ × {{bouquetCount}}</p>
+          <p class="text-xl font-medium">{{ Math.floor(totalPrice) }} ₽</p>
+          <p class="text-sm text-stone-500">{{ Math.floor(props.price) }} ₽ × {{ bouquetCount }}</p>
         </div>
       </div>
     </div>
