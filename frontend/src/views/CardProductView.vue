@@ -157,7 +157,7 @@ watch(() => flower.value?.inStock, () => {
             <button @click="addToCart" :disabled="cartLoading"
               :class="['rounded-md w-35 px-4 py-1 transition-all duration-200',
                 isAdded 
-                  ? 'bg-green-100 text-green-400 border-2 border-green-400' 
+                  ? 'text-green-400 border-2 border-green-400' 
                   : 'bg-yellow-100 border-2 border-pink-400 hover:bg-yellow-200 disabled:opacity-50'
               ]"
             >
