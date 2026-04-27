@@ -2,7 +2,7 @@ const Product = require('../models/Product');
 
 const getPopularProducts = async (req, res) => {
     try {
-        const productsData = await Product.getPopular(6);
+        const productsData = await Product.getPopular(4);
         
         const products = [];
         for (const product of productsData) {
