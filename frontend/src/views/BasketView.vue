@@ -62,7 +62,7 @@ const loadCart = async () => {
           name: product.title,
           image: product.image,
           price_at_time: product.defaultPrice,
-          price_per_flower: product.defaultPrice / 9,  // ДОБАВИТЬ
+          price_per_flower: product.defaultPrice / 9,
           bouquet_count: item.bouquet_count,
           flowers_per_bouquet: item.flowers_per_bouquet,
           max_bouquets: product.inStock,

@@ -202,16 +202,14 @@ const handleDeleteAccount = async () => {
 const inputFields = [
   { name: 'phone', label: 'Телефон', type: 'tel', placeholder: '+7 (999) 000-00-00', errorMsg: 'Введите корректный номер телефона' },
   { name: 'email', label: 'Почта', type: 'email', placeholder: 'flower@mail.ru', errorMsg: 'Введите корректный email' },
-  { name: 'address', label: 'Адрес', type: 'text', placeholder: 'г. Москва, ул. Цветочная, д. 10', errorMsg: 'Введите адрес доставки' },
+  { name: 'address', label: 'Адрес', type: 'text', placeholder: 'г. Великий Новгород, ул. Цветочная, д. 10', errorMsg: 'Введите адрес доставки' },
   { name: 'password', label: 'Новый пароль', type: 'password', placeholder: '••••••••', errorMsg: 'Пароль должен содержать минимум 6 символов' },
   { name: 'confirmPassword', label: 'Подтвердите пароль', type: 'password', placeholder: '••••••••', errorMsg: 'Пароли не совпадают' }
 ]
 
 onMounted(async () => {
-  // Сначала загружаем пользователя, если есть токен
   await loadUser()
   
-  // После загрузки пользователя проверяем авторизацию
   if (!isAuthenticated.value) {
     router.push('/')
     return

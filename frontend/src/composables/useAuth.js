@@ -1,4 +1,3 @@
-// frontend/src/composables/useAuth.js
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../api'
@@ -23,7 +22,6 @@ export function useAuth() {
             return true
         } catch (error) {
             console.error('Ошибка загрузки пользователя:', error)
-            // Если токен невалидный, очищаем его
             logout()
             return false
         }
@@ -40,7 +38,6 @@ export function useAuth() {
             localStorage.setItem('token', data.token)
             user.value = data.user
             
-            // Переносим гостевую корзину после регистрации
             await mergeGuestCart(token.value)
             
             return { success: true }
@@ -62,7 +59,6 @@ export function useAuth() {
             localStorage.setItem('token', data.token)
             user.value = data.user
             
-            // Переносим гостевую корзину после входа
             await mergeGuestCart(token.value)
             
             return { success: true }
@@ -111,7 +107,6 @@ export function useAuth() {
         }
     }
 
-    // Запускаем проверку сразу
     initAuth()
 
     return {

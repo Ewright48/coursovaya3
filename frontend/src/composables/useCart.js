@@ -14,6 +14,7 @@ const saveGuestCart = (items) => {
 export function useCart() {
     const loading = ref(false)
     const error = ref(null)
+    const addedItemId = ref(null)
 
     const addToCart = async (productId, flowersPerBouquet, bouquetCount = 1) => {
         const token = localStorage.getItem('token')
@@ -23,13 +24,9 @@ export function useCart() {
         
         try {
             if (token) {
-                // Авторизованный пользователь - добавляем в БД
                 const result = await api.addToCart(token, productId, flowersPerBouquet, bouquetCount)
                 if (result.error) throw new Error(result.error)
-                alert('Товар добавлен в корзину')
-                return true
             } else {
-                // Гость - добавляем в localStorage
                 const guestCart = getGuestCart()
                 const existingIndex = guestCart.findIndex(
                     item => item.product_id === productId && item.flowers_per_bouquet === flowersPerBouquet
@@ -45,12 +42,17 @@ export function useCart() {
                     })
                 }
                 saveGuestCart(guestCart)
-                alert('Товар добавлен в корзину')
-                return true
             }
+            
+            addedItemId.value = productId
+            setTimeout(() => {
+                addedItemId.value = null
+            }, 1000)
+            
+            return true
         } catch (err) {
             error.value = err.message
-            alert(err.message || 'Ошибка при добавлении в корзину')
+            console.error(err.message)
             return false
         } finally {
             loading.value = false
@@ -64,7 +66,6 @@ export function useCart() {
         for (const item of guestCart) {
             await api.addToCart(token, item.product_id, item.flowers_per_bouquet, item.bouquet_count)
         }
-        // Очищаем гостевую корзину после переноса
         saveGuestCart([])
     }
 
@@ -77,6 +78,7 @@ export function useCart() {
         mergeGuestCart,
         clearGuestCart,
         loading,
-        error
+        error,
+        addedItemId
     }
 }

@@ -1,13 +1,14 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import arrowUp from '../assets/icons/arrow-up.svg'
 import Counter from '../components/Counter.vue'
 import api from '../api'
 import { useCart } from '../composables/useCart'
 
 const route = useRoute()
-const { addToCart: addToCartApi, loading: cartLoading } = useCart()
+const router = useRouter()
+const { addToCart: addToCartApi, loading: cartLoading, addedItemId } = useCart()
 const flower = ref(null)
 const loading = ref(true)
 
@@ -67,6 +68,14 @@ const addToCart = async () => {
   await addToCartApi(flower.value.id, counterValue.value, 1)
 }
 
+const buyOneClick = async () => {
+  if (!flower.value) return
+  await addToCartApi(flower.value.id, counterValue.value, 1)
+  router.push('/basket')
+}
+
+const isAdded = computed(() => addedItemId.value === flower.value?.id)
+
 onMounted(async () => {
   loading.value = true
   try {
@@ -107,7 +116,7 @@ watch(() => flower.value?.inStock, () => {
 
     <section>
       <div class="flex justify-between gap-10">
-        <img :src="flower.image" alt="Product Image" class="w-120 h-120 object-cover rounded-lg" />
+        <img :src="flower.image" alt="Product Image" class="border border-yellow-400 w-120 h-120 object-cover rounded-lg" />
         <div class="w-1/2">
           <h2 class="text-4xl mb-4">{{ flower.title }}</h2>
 
@@ -134,21 +143,19 @@ watch(() => flower.value?.inStock, () => {
 
           <hr class="my-8 border-green-400">
 
-          <div class="flex items-center gap-8 text-2xl mb-4">
-            <div class="bg-yellow-100 border-2 border-green-400 rounded-md px-5">
-              <span v-if="hasDiscount" class="line-through text-stone-700 text-lg mr-2">
-                {{ (flower.pricePerFlower || 0) * counterValue }} ₽
-              </span>
-              <span class="font-medium">{{ totalPrice }} ₽</span>
-              <span v-if="hasDiscount" class="text-green-400 text-sm ml-2">-5%</span>
-            </div>
-          </div>
-
           <div class="flex justify-between items-center text-xl">
-            <button @click="addToCart" :disabled="cartLoading" class="bg-yellow-100 border-2 border-pink-400 rounded-md px-4 py-1 hover:bg-yellow-200 disabled:opacity-50">
-              {{ cartLoading ? 'Добавление...' : 'В корзину' }}
+            <button @click="addToCart" :disabled="cartLoading"
+              :class="['rounded-md w-35 px-4 py-1 transition-all duration-200',
+                isAdded 
+                  ? 'text-green-400 border-2 !border-green-400' 
+                  : 'bg-yellow-100 border-2 border-pink-400 hover:bg-yellow-200 disabled:opacity-50'
+              ]"
+            >
+              {{ isAdded ? 'Добавлено!' : (cartLoading ? 'Добавление...' : 'В корзину') }}
             </button>
-            <button class="bg-yellow-100 border-2 border-pink-400 rounded-md px-4 py-1 hover:bg-yellow-200">
+            <button @click="buyOneClick" :disabled="cartLoading"
+              class="bg-yellow-100 border-2 border-pink-400 rounded-md px-4 py-1 hover:bg-yellow-200 disabled:opacity-50 transition-all"
+            >
               Купить в 1 клик
             </button>
           </div>

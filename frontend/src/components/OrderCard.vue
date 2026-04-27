@@ -18,7 +18,6 @@ const emit = defineEmits(['repeat-order', 'cancel-order'])
 const isExpanded = ref(false)
 const productImages = ref({})
 
-// Загрузка картинок для товаров в заказе
 const loadProductImages = async () => {
   if (!props.order.items) return
   

@@ -101,7 +101,6 @@ const resetFilters = () => {
   loadProducts()
 }
 
-// Следим за изменениями фильтров
 watch([minPrice, maxPrice, minFlowers, maxFlowers], () => {
   applyFilters()
 })

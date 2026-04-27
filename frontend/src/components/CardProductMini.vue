@@ -1,5 +1,6 @@
 <script setup>
 import { useCart } from '../composables/useCart'
+import { computed } from 'vue'
 
 const props = defineProps({
   id: Number,
@@ -12,7 +13,9 @@ const props = defineProps({
   }
 })
 
-const { addToCart, loading } = useCart()
+const { addToCart, loading, addedItemId } = useCart()
+
+const isAdded = computed(() => addedItemId.value === props.id)
 
 const addToBasket = async (event) => {
   event.stopPropagation()
@@ -29,8 +32,17 @@ const addToBasket = async (event) => {
         <p>{{ price }} ₽</p>  
       </div>
     </router-link>
-    <button @click="addToBasket" :disabled="loading" class="mt-3 w-35 border-2 rounded-md border-pink-400 hover:bg-yellow-200 px-3 py-1 disabled:opacity-50">
-      {{ loading ? 'Добавление...' : 'В корзину' }}
+    <button 
+      @click="addToBasket" 
+      :disabled="loading"
+      :class="[
+        'mt-3 w-35 border-2 rounded-md border-pink-400 px-3 py-1 transition-all duration-200',
+        isAdded 
+          ? 'text-green-400 !border-green-400' 
+          : 'bg-transparent hover:bg-yellow-200 disabled:opacity-50'
+      ]"
+    >
+      {{ isAdded ? 'Добавлено!' : (loading ? 'Добавление...' : 'В корзину') }}
     </button>
   </article>
 </template>

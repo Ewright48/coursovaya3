@@ -1,0 +1,11 @@
+# Зависимости
+node_modules/
+package-lock.json
+
+# Переменные окружения
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/

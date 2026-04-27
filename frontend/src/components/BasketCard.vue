@@ -7,8 +7,8 @@ const props = defineProps({
   id: Number,
   image: String,
   name: String,
-  price: Number,           // цена за 1 букет
-  flowersCount: Number,    // количество цветов в букете (только для инфо)
+  price: Number,         // цена за 1 букет
+  flowersCount: Number,  // количество цветов в букете
   inStock: Number,
   discount: {
     type: Number,
